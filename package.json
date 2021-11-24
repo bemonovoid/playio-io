@@ -2,26 +2,26 @@
   "name": "playqd-ui-3",
   "version": "1.0.0",
   "private": true,
-  "homepage": "/playio",
+  "homepage": "/playsqd",
   "scripts": {
     "serve": "vite preview",
     "build": "vite build",
     "dev": "vite"
   },
   "dependencies": {
-    "@quasar/extras": "^1.0.0",
-    "axios": "^0.21.1",
+    "@quasar/extras": "^1.12.1",
+    "axios": "^0.24.0",
     "moment": "^2.29.1",
-    "quasar": "^2.0.0",
-    "vue": "^3.0.5",
-    "vue-axios": "^3.2.5",
-    "vue-router": "^4.0.10"
+    "quasar": "^2.0.4",
+    "vue": "^3.2.22",
+    "vue-axios": "^3.4.0",
+    "vue-router": "^4.0.12"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^1.3.0",
-    "@vue/compiler-sfc": "^3.0.5",
-    "vite": "^2.4.4",
-    "vue-cli-plugin-quasar": "~4.0.1",
-    "vue-loader": "^16.4.1"
+    "@vitejs/plugin-vue": "^1.10.0",
+    "@vue/compiler-sfc": "^3.2.22",
+    "vite": "^2.6.14",
+    "vue-cli-plugin-quasar": "~4.0.4",
+    "vue-loader": "^16.8.3"
   }
 }

@@ -54,7 +54,7 @@ export default {
       if (playlist.queue.length > 1) {
         playNewPlaylist(playlist.queue.slice(1));
       }
-    }
+    };
 
     const pause = () => {
       audioPlayerDOMElementRef.value.pause();
@@ -84,7 +84,11 @@ export default {
         return songTimeFormatted(audioPlayerDOMElementRef.value.duration - playlist.playingSongCurrentTime);
       }
       return '00:00'
-    })
+    });
+
+    const getAlbumArtworkUrl = (albumId) => {
+      return apiClient.getAlbumArtworkUrl(albumId);
+    };
 
     onMounted(() => {
       audioPlayerDOMElementRef.value.volume = 0.5
@@ -103,7 +107,9 @@ export default {
     provide('playingSongTimeFormatted', playingSongTimeFormatted);
     provide('playingSongReverseTimeFormatted', playingSongReverseTimeFormatted);
 
-    return {audioPlayerDOMElementRef, playlist}
+    provide('getAlbumArtworkUrl', getAlbumArtworkUrl)
+
+    return {audioPlayerDOMElementRef, playlist, playNext}
   },
 
   methods: {
@@ -114,7 +120,7 @@ export default {
 
     },
     onAudioCanPlay() {
-      console.log("onAudioCanPlay")
+
     },
     onAudioPlay() {
 
@@ -123,7 +129,7 @@ export default {
 
     },
     onAudioEnded() {
-
+      this.playNext();
     },
     onAudioTimeUpdate() {
       this.playlist.playingSongCurrentTime = this.audioPlayerDOMElementRef.currentTime;

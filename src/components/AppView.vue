@@ -2,14 +2,11 @@
   <div class="q-pa-sm">
     <q-layout view="hHh lpR fFf">
 
-      <q-header bordered class="bg-green" elevated>
-        <q-toolbar>
+      <q-header bordered elevated>
+        <q-toolbar class="bg-black text-white">
           <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
-          <q-toolbar-title>
-            <q-avatar>
-              <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">
-            </q-avatar>
-            Playio
+          <q-toolbar-title class="text-overline">
+            Playsqd
           </q-toolbar-title>
         </q-toolbar>
       </q-header>
@@ -55,6 +52,7 @@ import {ref} from 'vue'
 
 import PlayerFooter from "./player/PlayerFooter.vue";
 import ArtistsComponent from "./library/ArtistsComponent.vue";
+import AlbumsComponent from "./library/AlbumsComponent.vue";
 
 export default {
   name: 'AppView',
@@ -66,9 +64,15 @@ export default {
     const menuList = [
       {
         icon: 'inbox',
-        label: 'Inbox',
+        label: 'Artists',
         separator: true,
         toView: "ArtistsComponent"
+      },
+      {
+        icon: 'inbox',
+        label: 'Albums',
+        separator: true,
+        toView: "AlbumsComponent"
       }
     ];
 
