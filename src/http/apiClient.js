@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const API_CLIENT = axios.create({
-    baseURL: "http://localhost:9586/playsqd",
+    // baseURL: "http://localhost:9586/playsqd",
+    baseURL: import.meta.env.VITE_VUE_APP_BASE_URL,
     headers: {
         "Content-type": "application/json"
     }
@@ -52,10 +53,35 @@ export default {
     updateSongFavoriteStatus(songId) {
         return this.executePut('/api/library/songs/favorite/' + songId);
     },
+    getSources() {
+        return this.executeGet('/api/settings/sources');
+    },
+    getSource(sourceId) {
+        return this.executeGet('/api/settings/sources/' + sourceId);
+    },
+    editSource(source) {
+        if (source.id) {
+            return this.executePatch('/api/settings/sources', source);
+        } else {
+            return this.executePost('/api/settings/sources', source);
+        }
+    },
+    deleteSource(sourceId) {
+        return this.executeDelete('/api/settings/sources/' + sourceId);
+    },
     executeGet(url) {
         return API_CLIENT.get(url);
     },
     executePut(url) {
         return API_CLIENT.put(url);
+    },
+    executePatch(url, data) {
+        return API_CLIENT.patch(url, data);
+    },
+    executePost(url, data) {
+        return API_CLIENT.post(url, data);
+    },
+    executeDelete(url) {
+        return API_CLIENT.delete(url);
     }
 }

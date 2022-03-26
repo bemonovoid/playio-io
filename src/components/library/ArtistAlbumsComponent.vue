@@ -3,7 +3,7 @@
     <div class="col-xs-auto">
       <q-item>
         <q-item-section avatar thumbnail class="q-pr-sm col-shrink">
-          <q-icon size="sm" name="arrow_back_ios" @click="$router.back()"></q-icon>
+          <q-btn flat round size="sm" icon="arrow_back_ios" @click="$router.back()"></q-btn>
         </q-item-section>
         <q-item-section>
           <q-item-label class="text-h5">

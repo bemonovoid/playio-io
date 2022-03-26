@@ -1,5 +1,34 @@
 <template>
   <div class="q-pa-sm">
+
+<!--    <q-layout class="desktop-only" view="hHh lpR fFf">-->
+<!--      <q-header elevated class="bg-primary text-white">-->
+<!--        <q-toolbar>-->
+<!--          <q-toolbar-title>-->
+<!--            <q-avatar>-->
+<!--              <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">-->
+<!--            </q-avatar>-->
+<!--            Title-->
+<!--          </q-toolbar-title>-->
+<!--        </q-toolbar>-->
+<!--      </q-header>-->
+
+<!--      <q-page-container>-->
+<!--        <router-view/>-->
+<!--      </q-page-container>-->
+
+<!--      <q-footer elevated class="bg-grey-8 text-white">-->
+<!--        <q-toolbar>-->
+<!--          <q-toolbar-title>-->
+<!--            <q-avatar>-->
+<!--              <img src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg">-->
+<!--            </q-avatar>-->
+<!--            <div>Title</div>-->
+<!--          </q-toolbar-title>-->
+<!--        </q-toolbar>-->
+<!--      </q-footer>-->
+<!--    </q-layout>-->
+
     <q-layout view="hHh lpR fFf">
 
       <q-header bordered elevated>
@@ -37,9 +66,9 @@
         </q-scroll-area>
       </q-drawer>
 
-      <q-page-container>
-        <router-view />
-      </q-page-container>
+<!--      <q-page-container>-->
+<!--        <router-view />-->
+<!--      </q-page-container>-->
 
       <PlayerFooter/>
 
@@ -48,7 +77,8 @@
 </template>
 <script>
 
-import {ref} from 'vue'
+import {computed, reactive, ref} from 'vue'
+import {useHead} from '@vueuse/head'
 
 import PlayerFooter from "./player/PlayerFooter.vue";
 import ArtistsComponent from "./library/ArtistsComponent.vue";
@@ -61,20 +91,36 @@ export default {
     ArtistsComponent
   },
   setup() {
+    const headData = reactive({
+      title: 'Title',
+      description: 'Some descr'
+    });
     const menuList = [
       {
-        icon: 'inbox',
+        icon: 'person_outline',
         label: 'Artists',
         separator: true,
         toView: "ArtistsComponent"
       },
       {
-        icon: 'inbox',
+        icon: 'album',
         label: 'Albums',
         separator: true,
         toView: "AlbumsComponent"
       }
     ];
+
+    useHead({
+      // Can be static or computed
+      title: computed(() => headData.title),
+
+      meta: [
+        {
+          name: `description`,
+          content: computed(() => headData.description),
+        },
+      ],
+    })
 
     return {
       drawer: ref(true),

@@ -41,6 +41,7 @@
         </q-item>
 
       </q-toolbar-title>
+
       <q-toolbar-title v-else>Playlist is empty</q-toolbar-title>
 
     </q-toolbar>

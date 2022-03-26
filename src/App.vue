@@ -7,7 +7,8 @@
            v-on:ended="onAudioEnded()"
            v-on:canplay="onAudioCanPlay()"
            v-on:play="onAudioPlay()"
-           v-on:pause="onAudioPause()">
+           v-on:pause="onAudioPause()"
+           v-on:error="onAudioError">
     </audio>
   </div>
   <AppView/>
@@ -20,7 +21,7 @@ import AppView from "./components/AppView.vue";
 import {onMounted, computed, provide, reactive, ref, toRefs} from "vue";
 import moment from "moment";
 export default {
-  name: "App",
+  name: "App2",
   components: {AppView},
   setup() {
     const audioPlayerDOMElementRef = ref(null);
@@ -33,6 +34,7 @@ export default {
 
     const loadSong = (songId) => {
       audioPlayerDOMElementRef.value.src = apiClient.getSongAudioStreamUrl(songId);
+      audioPlayerDOMElementRef.value.currentTime =133;
       audioPlayerDOMElementRef.value.load();
     }
 
@@ -42,7 +44,6 @@ export default {
       } else {
         loadSong(songId);
       }
-      playlist.isPlaying = true;
     }
 
     const playNewPlaylist = (songs) => {
@@ -58,7 +59,6 @@ export default {
 
     const pause = () => {
       audioPlayerDOMElementRef.value.pause();
-      playlist.isPlaying = false;
     };
 
     const setPlayFromTime = (playFromTime) => {
@@ -113,9 +113,6 @@ export default {
   },
 
   methods: {
-    audioLoadSong(songId) {
-
-    },
     onAudioLoadStart() {
 
     },
@@ -123,10 +120,10 @@ export default {
 
     },
     onAudioPlay() {
-
+      this.playlist.isPlaying = true;
     },
     onAudioPause() {
-
+      this.playlist.isPlaying = false;
     },
     onAudioEnded() {
       this.playNext();
@@ -136,6 +133,9 @@ export default {
     },
     onAudioLoadedMetadata() {
       this.playlist.playingSongDuration = this.audioPlayerDOMElementRef.duration;
+    },
+    onAudioError() {
+      console.log("Failed to play audio. Something went wrong, probably io error");
     }
   }
 }
