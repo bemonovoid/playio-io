@@ -1,0 +1,119 @@
+<template>
+
+  <q-layout view="hhh lpR fFf" class="desktop-only">
+
+    <q-header bordered class="bg-black text-red">
+      <q-toolbar>
+        <q-btn dense flat round icon="menu" @click="toggleLeftDrawer"/>
+
+        <q-toolbar-title>
+          playqd
+        </q-toolbar-title>
+
+        <q-btn dense flat round icon="menu" @click="toggleRightDrawer"/>
+      </q-toolbar>
+    </q-header>
+
+    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered  class="bg-grey-2">
+      <q-list>
+        <q-expansion-item default-opened expand-separator
+                          icon="library_music"
+                          label="Library"
+                          caption="Media library content">
+          <q-item clickable class="q-pl-lg" to="/artists">
+            <q-item-section avatar>
+              <q-icon size="xs" name="groups" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-caption">Artists</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable class="q-pl-lg">
+            <q-item-section avatar>
+              <q-icon size="xs" name="album" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-caption">Albums</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item clickable class="q-pl-lg">
+            <q-item-section avatar>
+              <q-icon size="xs" name="headphones" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-caption">Songs</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-expansion-item>
+
+        <q-item clickable :to="{name: 'channelsList', params: {filter: 'all'}}">
+          <q-item-section avatar>
+            <q-icon name="podcasts" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Channels</q-item-label>
+            <q-item-label caption>Manage channels</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable to="/sources">
+          <q-item-section avatar>
+            <q-icon name="source" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Sources</q-item-label>
+            <q-item-label caption>Manage sources</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-drawer>
+
+    <q-drawer show-if-above v-model="rightDrawerOpen" side="right" bordered>
+      <!-- drawer content -->
+    </q-drawer>
+
+    <q-page-container>
+      <router-view />
+    </q-page-container>
+
+    <q-footer>
+      <PlayerToolbar/>
+    </q-footer>
+
+  </q-layout>
+
+</template>
+
+<script>
+
+import { ref } from 'vue'
+import PlayerToolbar from "../player/PlayerToolbar.vue";
+
+export default {
+  name: "LayoutComponent",
+  components: {
+    PlayerToolbar
+  },
+  setup() {
+    const leftDrawerOpen = ref(false)
+    const rightDrawerOpen = ref(false)
+
+    return {
+      leftDrawerOpen,
+      toggleLeftDrawer () {
+        leftDrawerOpen.value = !leftDrawerOpen.value
+      },
+
+      rightDrawerOpen,
+      toggleRightDrawer () {
+        rightDrawerOpen.value = !rightDrawerOpen.value
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

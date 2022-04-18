@@ -1,29 +1,35 @@
 <template>
-  <div>
-    <q-tabs align="left" v-model="tab" inline-label indicator-color="amber" no-caps>
-    <q-tab name="all" label="All"/>
-    <q-tab name="alarms" label="Featured" />
-    <q-route-tab name="new" label="Create new channel" :to="{name: 'newChannel'}"></q-route-tab>
-    </q-tabs>
-    <q-page-container>
-      <router-view/>
-    </q-page-container>
-  </div>
+  <div class="q-pa-md q-gutter-md">
 
+    <q-toolbar>
+      <q-icon size="md" name="podcasts" color="primary"></q-icon>
+      <q-toolbar-title>
+        Channels
+        <q-item-label caption>Description what is channels</q-item-label>
+      </q-toolbar-title>
+
+      <q-btn v-if="$route.name === 'channelsList'" color="blue" flat round icon="add" to="/channels/new"/>
+
+    </q-toolbar>
+
+    <q-separator spaced/>
+
+    <router-view/>
+
+  </div>
 
 </template>
 
 <script>
 
-import { ref } from 'vue'
+import { } from 'vue'
 
 export default {
   name: "ChannelsView",
   setup () {
-    return {
-      tab: ref('all')
-    }
+
   }
+
 }
 </script>
 

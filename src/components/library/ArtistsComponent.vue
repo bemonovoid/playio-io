@@ -1,19 +1,18 @@
 <template>
-  <div class="row items-center">
-    <div class="col-xs-auto">
-      <q-item>
-        <q-item-section avatar thumbnail class="q-pr-sm col-shrink">
-          <q-icon size="sm" name="person_outline"></q-icon>
-        </q-item-section>
-        <q-item-section>
-          <q-item-label class="text-h5">Artists</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-item-label caption>Total: {{pagination.total_elements}}</q-item-label>
-        </q-item-section>
-      </q-item>
+  <div class="q-pa-md q-gutter-md">
+
+    <q-toolbar>
+      <q-icon size="md" name="groups" color="primary"></q-icon>
+      <q-toolbar-title>
+        Artists
+        <q-item-label caption>All artists in the library</q-item-label>
+        <q-item-label caption>Total: {{pagination.total_elements}}</q-item-label>
+      </q-toolbar-title>
+
+    </q-toolbar>
+
+    <q-separator spaced/>
     </div>
-  </div>
 
   <q-input dense clearable clear-icon="close" label="Artist name" v-model="artistNameLike" @update:model-value="searchPageableArtists">
     <template v-slot:prepend>
@@ -21,20 +20,26 @@
     </template>
   </q-input>
 
-  <q-list separator>
-    <q-item v-for="artist in artists.data" :key="artist.id" clickable :to="{name: 'ArtistAlbumsComponent', params: {'artistId': artist.id}}">
-      <q-item-section avatar class="q-pr-sm col-shrink">
-        <q-icon size="sm" name="person_outline" />
-      </q-item-section>
-      <q-item-section class="cursor-pointer ellipsis">
-        {{artist.name}}
-        <q-item-label caption>Albums: {{artist.albums_count}}, songs: {{artist.songs_count}}</q-item-label>
-      </q-item-section>
-      <q-item-section side>
-        <q-icon name="chevron_right"></q-icon>
-      </q-item-section>
-    </q-item>
-  </q-list>
+  <q-scroll-area style="height: 900px;">
+    <q-list padding>
+      <q-item v-for="artist in artists.data" :key="artist.id">
+<!--      <q-item v-for="artist in artists.data" :key="artist.id" clickable :to="{name: 'ArtistAlbumsComponent', params: {'artistId': artist.id}}">-->
+        <q-item-section avatar class="q-pr-sm col-shrink">
+          <q-icon size="sm" name="person_outline" />
+        </q-item-section>
+<!--        <q-item-section class="cursor-pointer ellipsis">-->
+        <q-item-section>
+          <q-item-label>{{artist.name}}</q-item-label>
+          <q-item-label caption>Albums: {{artist.albums_count}}, songs: {{artist.songs_count}}</q-item-label>
+        </q-item-section>
+        <q-item-section side>
+          <q-icon name="chevron_right"></q-icon>
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </q-scroll-area>
+
+
 
   <q-separator color="green"/>
 
@@ -63,7 +68,7 @@ export default {
 
     const pagination = reactive({
       page: 1,
-      page_size: 10,
+      page_size: 20,
       total_pages: 0,
       total_elements: 0
     });

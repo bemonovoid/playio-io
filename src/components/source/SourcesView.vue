@@ -8,7 +8,7 @@
         <q-item-label caption>Description what is sources</q-item-label>
       </q-toolbar-title>
 
-      <q-btn v-if="$route.name === 'sourceList'" color="blue" flat round icon="add" to="/sources/new"/>
+      <q-btn v-if="$route.name === 'sourcesList'" color="blue" flat round icon="add" to="/sources/new"/>
 
     </q-toolbar>
 
@@ -22,7 +22,7 @@
 <script>
 
 export default {
-  name: "SourceView"
+  name: "SourcesView"
 }
 </script>
 

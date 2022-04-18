@@ -35,7 +35,7 @@
         <q-toolbar class="bg-black text-white">
           <q-btn flat @click="drawer = !drawer" round dense icon="menu" />
           <q-toolbar-title class="text-overline">
-            Playsqd
+            Playqd
           </q-toolbar-title>
         </q-toolbar>
       </q-header>

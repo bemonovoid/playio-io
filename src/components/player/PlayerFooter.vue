@@ -20,7 +20,7 @@
           </q-item-section>
           <q-item-section>
             <div class="row">
-              <q-slider dark dense :step="1" color="red" :model-value="playlist.playingSongCurrentTime" :min="0" :max="playlist.playingSongDuration" @change="setPlayFromTime"/>
+              <q-slider readonly dark dense :step="1" color="red" :model-value="playlist.playingSongCurrentTime" :min="0" :max="playlist.playingSongDuration" @change="setPlayFromTime"/>
             </div>
             <div class="row">
               <div class="col-6">

@@ -47,12 +47,15 @@ export default {
     getAlbumArtworkUrl(albumId) {
         return this.getBaseUrl() + '/api/library/albums/' + albumId + '/artwork';
     },
-    getSongAudioStreamUrl(songId) {
-        return this.getBaseUrl() + '/api/library/songs/' + songId + '/stream';
+    getStreamingItemUrl(streamingItemId) {
+        return this.getBaseUrl() + '/api/stream/' + streamingItemId;
     },
     updateSongFavoriteStatus(songId) {
         return this.executePut('/api/library/songs/favorite/' + songId);
     },
+
+    // SOURCES API
+
     getSources() {
         return this.executeGet('/api/settings/sources');
     },
@@ -69,6 +72,35 @@ export default {
     deleteSource(sourceId) {
         return this.executeDelete('/api/settings/sources/' + sourceId);
     },
+
+    // CHANNELS API
+
+    getChannels() {
+        return this.executeGet('/api/channels');
+    },
+    getChannel(channelId) {
+        return this.executeGet('/api/channels/' + channelId);
+    },
+    getChannelWithPlaybackHistoryItems(channelId) {
+        return this.executeGet('/api/channels/' + channelId + '/extended');
+    },
+    getPlaybackHistory(channelId) {
+        return this.executeGet('/api/channels/' + channelId + '/history');
+    },
+    deletePlaybackHistory(channelId) {
+        return this.executeDelete('/api/channels/history/' + channelId);
+    },
+    deleteChannel(channelId) {
+        return this.executeDelete('/api/channels/' + channelId);
+    },
+
+    // CHANNEL STREAM INFO API
+
+    getChannelStreamInfo(channelId) {
+        return this.executeGet('/api/channels/' + channelId + '/stream/info');
+    },
+
+    // CRUD API
     executeGet(url) {
         return API_CLIENT.get(url);
     },

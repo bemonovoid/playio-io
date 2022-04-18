@@ -19,7 +19,6 @@
           <q-btn flat round dense icon="refresh" />
           <q-btn flat round dense icon="edit" :to="{name: 'sourceEdit', params: {sourceId: source.id}}"/>
           <q-btn flat round dense icon="delete" @click="onDeleteSource(source.id)"/>
-
         </div>
       </q-item-section>
 
@@ -48,7 +47,7 @@ import {onMounted, ref} from "vue";
 import apiClient from "../../http/apiClient";
 
 export default {
-  name: "SourceListView",
+  name: "SourcesList",
   setup() {
     let sources = ref([]);
     const deleteSourceIdModel = ref(-1);

@@ -1,28 +1,33 @@
 import { createWebHashHistory, createRouter } from "vue-router";
 
-import ArtistsComponent from "./components/library/ArtistsComponent.vue";
 import ArtistAlbumsComponent from "./components/library/ArtistAlbumsComponent.vue";
 import AlbumsComponent from "./components/library/AlbumsComponent.vue";
 import AlbumSongsComponent from "./components/library/AlbumSongsComponent.vue";
+import SourcesView from "./components/source/SourcesView.vue";
 
-import SourceView from "./components/source/SourceView.vue";
-import SourceListView from "./components/source/SourceListView.vue";
+import SourcesList from "./components/source/SourcesList.vue";
 import SourceEditView from "./components/source/SourceEditView.vue";
-import ChannelsView from "./components/channels/ChannelsView.vue";
-import NewChannelView from "./components/channels/NewChannelView.vue";
-import ChannelList from "./components/channels/ChannelList.vue";
 
-import DesktopAppComponent from "./components/desktop/DesktopAppComponent.vue";
+import ChannelsView from "./components/channels/ChannelsView.vue";
+import ChannelView from "./components/channels/ChannelView.vue";
+import ChannelsList from "./components/channels/ChannelsList.vue";
+import NewChannelView from "./components/channels/NewChannelView.vue";
+
+import ArtistsView from "./components/library/ArtistsComponent.vue";
+
+import DesktopAppComponent from "./components/desktop/PlayqdApplicationComponent.vue";
 
 const routes = [
 
-    // {path: "/", name: "home", component: TextView},
-    {path: "/sources", name: "sources", component: SourceView,
+    {
+        path: "/sources",
+        name: "sources",
+        component: SourcesView,
         children: [
             {
                 path: "/sources",
-                name: "sourceList",
-                component: SourceListView
+                name: "sourcesList",
+                component: SourcesList
             },
             {
                 path: "/sources/new",
@@ -37,16 +42,35 @@ const routes = [
             }
         ]
     },
-    {path: "/channels", name: "channels", component: ChannelsView,
+    {
+        path: "/channels",
+        name: "channels",
+        component: ChannelsView,
         children: [
+            {
+                path: "/channels/:filter",
+                name: "channelsList",
+                component: ChannelsList
+            },
+            {
+                path: "/channels/:channelId",
+                name: "channel",
+                component: ChannelView,
+                props: true
+            },
             {
                 path: "/channels/new",
                 name: "newChannel",
                 component: NewChannelView
             }
         ]
+    },
+    {
+        path: "/artists",
+        name: "artists",
+        component: ArtistsView,
+        meta: {title: 'Artists'}
     }
-    // {path: "/artists", name: "ArtistsComponent", component: ArtistsComponent,  meta: {title: 'Artists'}},
     // {path: "/artists/:artistId/albums", name: "ArtistAlbumsComponent", component: ArtistAlbumsComponent, meta: {title: 'Artist albums'}},
     // {path: "/albums", name: "AlbumsComponent", component: AlbumsComponent, meta: {title: 'Albums'}},
     // {path: "/albums/:albumId", name: "AlbumSongsComponent", component: AlbumSongsComponent, meta: {title: 'Album songs'}},
