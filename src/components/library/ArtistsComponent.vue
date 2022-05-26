@@ -20,24 +20,25 @@
     </template>
   </q-input>
 
-  <q-scroll-area style="height: 900px;">
-    <q-list padding>
-      <q-item v-for="artist in artists.data" :key="artist.id">
-<!--      <q-item v-for="artist in artists.data" :key="artist.id" clickable :to="{name: 'ArtistAlbumsComponent', params: {'artistId': artist.id}}">-->
-        <q-item-section avatar class="q-pr-sm col-shrink">
-          <q-icon size="sm" name="person_outline" />
-        </q-item-section>
-<!--        <q-item-section class="cursor-pointer ellipsis">-->
-        <q-item-section>
-          <q-item-label>{{artist.name}}</q-item-label>
-          <q-item-label caption>Albums: {{artist.albums_count}}, songs: {{artist.songs_count}}</q-item-label>
-        </q-item-section>
-        <q-item-section side>
-          <q-icon name="chevron_right"></q-icon>
-        </q-item-section>
-      </q-item>
-    </q-list>
-  </q-scroll-area>
+
+  <q-list padding>
+    <q-item v-for="artist in artists.data" :key="artist.id" clickable :to="{name: 'ArtistAlbumsComponent', params: {'artistId': artist.id}}">
+      <q-item-section avatar class="q-pr-sm col-shrink">
+        <q-icon size="sm" name="person_outline" />
+      </q-item-section>
+      <!--        <q-item-section class="cursor-pointer ellipsis">-->
+      <q-item-section>
+        <q-item-label class="cursor-pointer">{{artist.name}}</q-item-label>
+        <q-item-label caption>Albums: {{artist.albums_count}}, songs: {{artist.songs_count}}</q-item-label>
+      </q-item-section>
+      <q-item-section side>
+        <q-icon name="chevron_right"></q-icon>
+      </q-item-section>
+    </q-item>
+  </q-list>
+<!--  <q-scroll-area style="height: 900px;">-->
+<!--    -->
+<!--  </q-scroll-area>-->
 
 
 

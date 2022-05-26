@@ -7,7 +7,7 @@ import '@quasar/extras/material-icons-round/material-icons-round.css'
 // To be used on app.use(Quasar, { ... })
 export default {
   config: {
-    dark: false
+    dark: true
   },
   plugins: {
   }

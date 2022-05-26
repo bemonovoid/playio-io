@@ -3,8 +3,8 @@
 
     <q-item-label header>Folders</q-item-label>
 
-    <q-item v-for="source in sources" :key="source.id">
-      <q-item-section avatar top>
+    <q-item v-for="source in sources" :key="source.id" :to="{name: 'sourceContent', params: {sourceId: source.id}}">
+      <q-item-section avatar>
         <q-avatar icon="folder" color="grey" text-color="white" />
       </q-item-section>
 
@@ -62,7 +62,6 @@ export default {
       deleteSourceIdModel.value = sourceId;
     }
     const deleteSource = () => {
-      console.log(deleteSourceIdModel.value)
       apiClient.deleteSource(deleteSourceIdModel.value).then(res => {
         searchSources();
       })

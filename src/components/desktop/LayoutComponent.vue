@@ -4,23 +4,24 @@
 
     <q-header bordered class="bg-black text-red">
       <q-toolbar>
-        <q-btn dense flat round icon="menu" @click="toggleLeftDrawer"/>
+        <q-btn dense flat round icon="menu" @click="toggleLeftDrawer()"/>
 
         <q-toolbar-title>
           playqd
         </q-toolbar-title>
 
-        <q-btn dense flat round icon="menu" @click="toggleRightDrawer"/>
+        <q-btn dense flat round icon="menu" @click="toggleRightDrawer()"/>
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered  class="bg-grey-2">
+    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered >
       <q-list>
-        <q-expansion-item default-opened expand-separator
+        <q-expansion-item default-opened
                           icon="library_music"
                           label="Library"
                           caption="Media library content">
-          <q-item clickable class="q-pl-lg" to="/artists">
+
+          <q-item clickable class="q-pl-lg" :to="{name: 'artists'}">
             <q-item-section avatar>
               <q-icon size="xs" name="groups" />
             </q-item-section>
@@ -38,6 +39,15 @@
             </q-item-section>
           </q-item>
 
+          <q-item clickable class="q-pl-lg" :to="{name: 'genres'}">
+            <q-item-section avatar>
+              <q-icon size="xs" name="piano"/>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-caption">Genres</q-item-label>
+            </q-item-section>
+          </q-item>
+
           <q-item clickable class="q-pl-lg">
             <q-item-section avatar>
               <q-icon size="xs" name="headphones" />
@@ -48,7 +58,7 @@
           </q-item>
         </q-expansion-item>
 
-        <q-item clickable :to="{name: 'channelsList', params: {filter: 'all'}}">
+        <q-item clickable :to="{name: 'channels'}">
           <q-item-section avatar>
             <q-icon name="podcasts" />
           </q-item-section>
@@ -59,7 +69,7 @@
         </q-item>
         <q-item clickable to="/sources">
           <q-item-section avatar>
-            <q-icon name="source" />
+            <q-icon name="storage" />
           </q-item-section>
           <q-item-section>
             <q-item-label>Sources</q-item-label>
@@ -74,6 +84,7 @@
     </q-drawer>
 
     <q-page-container>
+      <NavigationToolbar/>
       <router-view />
     </q-page-container>
 
@@ -89,12 +100,11 @@
 
 import { ref } from 'vue'
 import PlayerToolbar from "../player/PlayerToolbar.vue";
+import NavigationToolbar from "./NavigationToolbar.vue";
 
 export default {
   name: "LayoutComponent",
-  components: {
-    PlayerToolbar
-  },
+  components: { PlayerToolbar, NavigationToolbar },
   setup() {
     const leftDrawerOpen = ref(false)
     const rightDrawerOpen = ref(false)

@@ -9,20 +9,20 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@quasar/extras": "^1.12.5",
-    "axios": "^0.26.0",
-    "moment": "^2.29.1",
-    "quasar": "^2.5.5",
-    "vue": "^3.2.31",
+    "@quasar/extras": "^1.13.5",
+    "axios": "^0.27.1",
+    "moment": "^2.29.3",
+    "quasar": "^2.6.6",
+    "vue": "^3.2.33",
     "vue-axios": "^3.4.1",
-    "vue-router": "^4.0.12",
-    "@vueuse/head": "^0.7.5"
+    "vue-router": "^4.0.14",
+    "@vueuse/head": "^0.7.6"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^1.10.0",
-    "@vue/compiler-sfc": "^3.2.31",
-    "vite": "^2.8.4",
-    "vue-cli-plugin-quasar": "~4.0.4",
+    "@vitejs/plugin-vue": "^2.3.1",
+    "@vue/compiler-sfc": "^3.2.33",
+    "vite": "^2.9.6",
+    "vue-cli-plugin-quasar": "~5.0.1",
     "vue-loader": "^17.0.0"
   }
 }

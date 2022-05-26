@@ -9,9 +9,22 @@ const API_CLIENT = axios.create({
 })
 
 export default {
+    // URLS
+
     getBaseUrl() {
         return API_CLIENT.defaults.baseURL
     },
+
+    buildAlbumArtworkUrl(albumId) {
+        return this.getBaseUrl() + '/api/albums/' + albumId + '/artwork';
+    },
+
+    buildStreamingItemUrl(streamingItemId) {
+        return this.getBaseUrl() + '/api/stream/' + streamingItemId;
+    },
+
+    // ARTIST API
+
     getArtists(withPagination) {
         let queryStr = "?";
         for (let key in withPagination) {
@@ -41,17 +54,26 @@ export default {
     getArtistAlbums(artistId) {
         return this.executeGet('/api/library/artists/' + artistId + '/albums');
     },
+    getAlbumTracks(albumId) {
+        return this.executeGet('/api/albums/' + albumId + '/tracks');
+    },
     getAlbumSongs(albumId) {
         return this.executeGet('/api/library/albums/' + albumId + '/songs');
     },
-    getAlbumArtworkUrl(albumId) {
-        return this.getBaseUrl() + '/api/library/albums/' + albumId + '/artwork';
-    },
-    getStreamingItemUrl(streamingItemId) {
-        return this.getBaseUrl() + '/api/stream/' + streamingItemId;
-    },
     updateSongFavoriteStatus(songId) {
         return this.executePut('/api/library/songs/favorite/' + songId);
+    },
+
+    // TRACK API
+
+    getTrack(trackId) {
+        return this.executeGet('/api/library/tracks/' + trackId);
+    },
+
+    // GENRES API
+
+    getGenres() {
+      return this.executeGet('/api/genres');
     },
 
     // SOURCES API
@@ -61,6 +83,13 @@ export default {
     },
     getSource(sourceId) {
         return this.executeGet('/api/settings/sources/' + sourceId);
+    },
+    getSourceFolders(sourceId, path) {
+        let url = '/api/settings/sources/' + sourceId + '/folders';
+        if (path) {
+            url += '?path=' + path;
+        }
+        return this.executeGet(url);
     },
     editSource(source) {
         if (source.id) {
@@ -73,7 +102,7 @@ export default {
         return this.executeDelete('/api/settings/sources/' + sourceId);
     },
 
-    // CHANNELS API
+    // CHANNEL API
 
     getChannels() {
         return this.executeGet('/api/channels');
@@ -87,6 +116,9 @@ export default {
     getPlaybackHistory(channelId) {
         return this.executeGet('/api/channels/' + channelId + '/history');
     },
+    createChannel(channel) {
+        return this.executePost('/api/channels', channel);
+    },
     deletePlaybackHistory(channelId) {
         return this.executeDelete('/api/channels/history/' + channelId);
     },
@@ -96,8 +128,8 @@ export default {
 
     // CHANNEL STREAM INFO API
 
-    getChannelStreamInfo(channelId) {
-        return this.executeGet('/api/channels/' + channelId + '/stream/info');
+    getChannelNowPlayingTrack(channelId) {
+        return this.executeGet('/api/channels/' + channelId + '/playing');
     },
 
     // CRUD API

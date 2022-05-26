@@ -89,7 +89,7 @@ export default {
     const pause = inject('pause')
     const playlist = inject('playlist');
     const playNewPlaylist = inject('playNewPlaylist');
-    const songTimeFormatted = inject('songTimeFormatted');
+    const songTimeFormatted = inject('audioLengthFormatted');
     const playingSongTimeFormatted = inject('playingSongTimeFormatted');
     const getAlbumArtworkUrl = inject('getAlbumArtworkUrl')
 

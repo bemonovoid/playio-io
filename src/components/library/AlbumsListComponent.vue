@@ -1,7 +1,7 @@
 <template>
 
   <q-list separator padding>
-    <q-item v-for="album in albums" :key="album.id" clickable :to="{name: 'AlbumSongsComponent', params: {'albumId': album.id}}">
+    <q-item v-for="album in albums" :key="album.id" clickable :to="{name: 'album', params: {'albumId': album.id}}">
       <q-item-section class="col-shrink">
         <q-avatar square size="75px">
           <q-icon size="xl" class="text-grey" v-if="albumArtworkNotFound(album.id)" name="album"></q-icon>
@@ -15,7 +15,7 @@
         <q-item-label caption lines="4">{{album.songs_count}} song(s)</q-item-label>
       </q-item-section>
       <q-item-section side top>
-        <q-item-label caption>{{songTimeFormatted(album.total_time_in_seconds)}}</q-item-label>
+        <q-item-label caption>{{audioLengthFormatted(album.total_time_in_seconds)}}</q-item-label>
       </q-item-section>
     </q-item>
   </q-list>
@@ -25,16 +25,18 @@
 <script>
 import {inject, reactive} from "vue";
 
+import apiClient from "../../http/apiClient";
+
 export default {
   name: "AlbumsListComponent",
   props: ['albums'],
   setup() {
     let defaultAlbumImage = reactive([]);
-    const songTimeFormatted = inject('songTimeFormatted');
-    const getAlbumArtworkUrl = inject('getAlbumArtworkUrl');
+    const audioLengthFormatted = inject('audioLengthFormatted');
+    const getAlbumArtworkUrl = (albumId) => apiClient.buildAlbumArtworkUrl(albumId);
 
     return {
-      defaultAlbumImage, songTimeFormatted, getAlbumArtworkUrl
+      defaultAlbumImage, audioLengthFormatted, getAlbumArtworkUrl
     }
   },
   methods: {

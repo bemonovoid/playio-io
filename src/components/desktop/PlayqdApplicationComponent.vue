@@ -32,18 +32,48 @@ export default {
     LayoutComponent
   },
   setup() {
-    const CHANNEL_KIND_CHANNEL = 'channel';
-    const CHANNEL_KIND_LIBRARY = 'library';
+    const SOURCE_KIND_CHANNEL = 'channel';
+    const SOURCE_KIND_LIBRARY = 'library';
+    const SOURCE_KIND_ALBUM = 'album';
 
     const audioPlayerDOMElementRef = ref(null);
 
+    const player = reactive({
+      source: {
+        id: null,
+        name: null,
+        kind: SOURCE_KIND_LIBRARY, // library, channel, user_playlist
+      },
+      state: {
+        muted: false,
+        volume: 0.5,
+        isPlaying: false,
+        currentlyPlayingItemDuration: 0,
+        currentlyPlayingItemSecond: 0,
+      },
+      queue: [],
+      play: (source) => {
+        play(source);
+      },
+      pause: () => pause(),
+      isEmpty: () => !(player.queue.length > 0),
+      isNowPlayingThisItem: (sourceId) => {
+        return isNowPlayingThisItem(sourceId);
+      }
+    });
+
+    const isNowPlayingThisItem = (sourceId) => {
+      return player.state.isPlaying && player.queue[0].id === sourceId;
+    };
+
     const playlist = reactive({
       info: {
-        kind: CHANNEL_KIND_CHANNEL, // library, channel, user_playlist
+        kind: SOURCE_KIND_CHANNEL, // library, channel, user_playlist
         id: null,
         name: null,
       },
       state: {
+        muted: false,
         volume: 0.5,
         isPlaying: false,
         currentlyPlayingItemDuration: 0,
@@ -52,61 +82,63 @@ export default {
       queue: []
     });
 
-    const playChannel = (channel) => {
-      apiClient.getChannelStreamInfo(channel.id).then(res => {
-        playlist.info.kind = CHANNEL_KIND_CHANNEL;
-        playlist.info.id = channel.id;
-        playlist.info.name = channel.name;
-
-        loadChannelAudio(res.data);
-      });
-    };
-
     const playNextInChannel = () => {
       setTimeout(() => {
-        apiClient.getChannelStreamInfo(playlist.info.id).then(res => {
-          playlist.queue = [res.data.streaming_item];
-          playlist.state.currentlyPlayingItemSecond = 0;
-          loadAudio(playlist.queue[0].id);
+        apiClient.getChannelNowPlayingTrack(player.source.id).then(res => {
+          player.queue = [res.data.track];
+          player.state.currentlyPlayingItemSecond = 0;
+          loadAudioTrackFrom(player.queue[0].id, 0);
         });
       }, 1000);
     };
 
-    const loadChannelAudio = (channelStreamingItemInfo) => {
-      let streaming_item = channelStreamingItemInfo.streaming_item;
-      let streamStartedAt = channelStreamingItemInfo.streaming_timestamp; // 2022-04-15T13:19:34.974526
-      let streamStartedAtMoment = moment(streamStartedAt, moment.DATETIME_LOCAL_MS);
-      let momentDiffInSeconds = moment.duration(moment().diff(streamStartedAtMoment)).as('seconds');
+    const loadAudioChannel = (channelId) => {
+      apiClient.getChannelNowPlayingTrack(channelId).then(res => {
+        let nowPlayingTrack = res.data.track;
+        let playStartedAt = res.data.play_start_date; // 2022-04-15T13:19:34.974526
+        let playStartedAtMoment = moment(playStartedAt, moment.DATETIME_LOCAL_MS);
+        let momentDiffInSeconds = moment.duration(moment().diff(playStartedAtMoment)).as('seconds');
 
-      playlist.queue = [streaming_item];
-      playlist.state.currentlyPlayingItemSecond = momentDiffInSeconds;
+        player.queue = [nowPlayingTrack];
+        player.state.currentlyPlayingItemSecond = momentDiffInSeconds;
 
-      loadAudio(streaming_item.id);
+        loadAudioTrackFrom(player.queue[0].id, player.state.currentlyPlayingItemSecond);
+      });
     };
 
-    const loadAudio = (songId) => {
-      audioPlayerDOMElementRef.value.src = apiClient.getStreamingItemUrl(songId);
-      audioPlayerDOMElementRef.value.currentTime = playlist.state.currentlyPlayingItemSecond;
-      audioPlayerDOMElementRef.value.load();
-    };
-
-    const play = (songId) => {
-      if (isNaN(songId)) {
-        audioPlayerDOMElementRef.value.play(); // When play a song that was set on pause
+    const play = (source) => {
+      if (source) {
+        player.source.id = source.id;
+        player.source.name = source.name;
+        player.source.kind = source.kind;
+        if (player.source.kind === SOURCE_KIND_LIBRARY) {
+          player.queue = []
+          loadAudioTrackFrom(source.id, 0);
+        } else if (player.source.kind === SOURCE_KIND_ALBUM) {
+          player.queue = source.id;
+          loadAudioTrackFrom(player.queue[0].id, 0);
+        } else if (player.source.kind === SOURCE_KIND_CHANNEL) {
+          loadAudioChannel(player.source.id);
+        }
       } else {
-        playlist.info.kind = CHANNEL_KIND_LIBRARY;
-        loadAudio(songId);
+        audioPlayerDOMElementRef.value.play(); // When play a song that was set on pause
       }
     };
 
+    const loadAudioTrackFrom = (trackId, fromSeconds) => {
+      audioPlayerDOMElementRef.value.src = apiClient.buildStreamingItemUrl(trackId);
+      audioPlayerDOMElementRef.value.currentTime = fromSeconds;
+      audioPlayerDOMElementRef.value.load();
+    };
+
     const playNewPlaylist = (songs) => {
-      playlist.queue = songs;
-      play(playlist.queue[0].id);
+      player.queue = songs;
+      play(player.queue[0].id);
     }
 
     const playNext = () => {
-      if (playlist.queue.length > 1) {
-        playNewPlaylist(playlist.queue.slice(1));
+      if (player.queue.length > 1) {
+        playNewPlaylist(player.queue.slice(1));
       }
     };
 
@@ -114,11 +146,22 @@ export default {
       audioPlayerDOMElementRef.value.pause();
     };
 
+    const setMuteOnOff = () => {
+      audioPlayerDOMElementRef.value.muted = player.state.muted = !player.state.muted;
+    };
+
+    const setVolume = () => {
+      if (audioPlayerDOMElementRef.value.muted) {
+        setMuteOnOff();
+      }
+      audioPlayerDOMElementRef.value.volume = player.state.volume;
+    };
+
     const setPlayFromTime = (playFromTime) => {
       audioPlayerDOMElementRef.value.currentTime = playFromTime;
     };
 
-    const songTimeFormatted = (lengthInSeconds) => {
+    const audioLengthFormatted = (lengthInSeconds) => {
       let format = 'mm:ss';
       if (lengthInSeconds >= 3600) {
         format = 'HH:mm:ss';
@@ -127,43 +170,39 @@ export default {
     };
 
     const currentlyPlayingSongTime = computed(() => {
-      return songTimeFormatted(playlist.state.currentlyPlayingItemSecond);
+      return audioLengthFormatted(player.state.currentlyPlayingItemSecond);
     });
 
     const currentlyPlayingSongTimeReversed = computed(() => {
       if (audioPlayerDOMElementRef.value) {
-        return songTimeFormatted(audioPlayerDOMElementRef.value.duration - playlist.state.currentlyPlayingItemSecond);
+        return audioLengthFormatted(audioPlayerDOMElementRef.value.duration - player.state.currentlyPlayingItemSecond);
       }
       return '00:00'
     });
 
-    const getAlbumArtworkUrl = (albumId) => {
-      return apiClient.getAlbumArtworkUrl(albumId);
-    };
-
     onMounted(() => {
-      audioPlayerDOMElementRef.value.volume = playlist.state.volume;
+      audioPlayerDOMElementRef.value.volume = player.state.volume;
     });
 
-    provide('playChannel', playChannel);
     provide('play', play);
     provide('pause', pause);
     provide('playNext', playNext)
     provide('playNewPlaylist', playNewPlaylist);
 
+    provide('player', player);
+
+    provide('setMuteOnOff', setMuteOnOff);
+    provide('setVolume', setVolume);
     provide('setPlayFromTime', setPlayFromTime);
 
-    provide('playlist', playlist);
-    provide('songTimeFormatted', songTimeFormatted);
+    provide('audioLengthFormatted', audioLengthFormatted);
 
     provide('currentlyPlayingSongTime', currentlyPlayingSongTime);
     provide('currentlyPlayingSongTimeReversed', currentlyPlayingSongTimeReversed);
 
-    provide('getAlbumArtworkUrl', getAlbumArtworkUrl)
-
     return {
-      CHANNEL_KIND_CHANNEL, audioPlayerDOMElementRef, playlist,
-      playNext, playNextInChannel
+      SOURCE_KIND_CHANNEL, audioPlayerDOMElementRef,
+      playNext, playNextInChannel, player
     }
   },
 
@@ -175,23 +214,23 @@ export default {
 
     },
     onAudioPlay() {
-      this.playlist.state.isPlaying = true;
+      this.player.state.isPlaying = true;
     },
     onAudioPause() {
-      this.playlist.state.isPlaying = false;
+      this.player.state.isPlaying = false;
     },
     onAudioEnded() {
-      if (this.playlist.info.kind === this.CHANNEL_KIND_CHANNEL) {
+      if (this.player.source.kind === this.SOURCE_KIND_CHANNEL) {
         this.playNextInChannel();
       } else {
         this.playNext();
       }
     },
     onAudioTimeUpdate() {
-      this.playlist.state.currentlyPlayingItemSecond = this.audioPlayerDOMElementRef.currentTime;
+      this.player.state.currentlyPlayingItemSecond = this.audioPlayerDOMElementRef.currentTime;
     },
     onAudioLoadedMetadata() {
-      this.playlist.state.currentlyPlayingItemDuration = this.audioPlayerDOMElementRef.duration;
+      this.player.state.currentlyPlayingItemDuration = this.audioPlayerDOMElementRef.duration;
     },
     onAudioError() {
       console.error("Failed to play audio. Something went wrong, probably io error");
