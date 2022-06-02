@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const API_CLIENT = axios.create({
-    // baseURL: "http://localhost:9586/playsqd",
-    baseURL: import.meta.env.VITE_VUE_APP_BASE_URL,
+    baseURL: "http://localhost:9586/playqd",
+    // baseURL: import.meta.env.VITE_VUE_APP_BASE_URL,
     headers: {
         "Content-type": "application/json"
     }
@@ -79,23 +79,23 @@ export default {
     // SOURCES API
 
     getSources() {
-        return this.executeGet('/api/settings/sources');
+        return this.executeGet('/api/sources');
     },
     getSource(sourceId) {
-        return this.executeGet('/api/settings/sources/' + sourceId);
+        return this.executeGet('/api/sources/' + sourceId);
     },
-    getSourceFolders(sourceId, path) {
-        let url = '/api/settings/sources/' + sourceId + '/folders';
-        if (path) {
-            url += '?path=' + path;
+    getSourceWithContent(sourceId, pathInSource) {
+        let url = '/api/sources/' + sourceId + '/content';
+        if (pathInSource) {
+            url += '?path=' + pathInSource;
         }
         return this.executeGet(url);
     },
     editSource(source) {
         if (source.id) {
-            return this.executePatch('/api/settings/sources', source);
+            return this.executePatch('/api/sources', source);
         } else {
-            return this.executePost('/api/settings/sources', source);
+            return this.executePost('/api/sources', source);
         }
     },
     deleteSource(sourceId) {
