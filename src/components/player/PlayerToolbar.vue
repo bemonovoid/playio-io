@@ -2,32 +2,32 @@
   <q-toolbar class="bg-black text-white">
     <q-toolbar-title v-if="player.queue.length > 0">
       <q-item>
-        <q-item-section side v-if="player.source.kind === 'channel'">
+        <q-item-section side v-if="player.channel">
           <q-avatar square size="xl">
-            <q-img loading="eager" class="q-my-none" src="channel-3.png"></q-img>
+            <q-img class="q-my-none" src="channel-3.png"></q-img>
           </q-avatar>
         </q-item-section>
-        <q-item-section side v-if="player.source.kind === 'channel'" style="width: 215px">
+        <q-item-section side v-if="player.channel" style="width: 215px">
           <q-item-label class="text-caption text-grey">Channel</q-item-label>
-          <q-item-label class="text-grey-3 cursor-pointer underline-on-hover" @click="viewChannel(player.source.id)">{{player.source.name}}</q-item-label>
+          <q-item-label class="text-grey-3 cursor-pointer underline-on-hover" @click="viewChannel(player.channel.id)">{{player.channel.name}}</q-item-label>
         </q-item-section>
 
-        <q-item-section avatar side v-if="player.source.kind === 'channel'">
+        <q-item-section avatar side v-if="player.channel">
           <q-btn size="sm" color="grey" flat round icon="favorite_border"></q-btn>
 <!--          <q-avatar icon="favorite_border"></q-avatar>-->
         </q-item-section>
 
         <q-item-section side>
           <q-avatar square size="xl">
-            <ArtworkImage :album-id="player.queue[0].album.id"/>
+            <ArtworkImage :album-id="player.track.album.id"/>
           </q-avatar>
         </q-item-section>
 
         <q-item-section side style="padding-left: 5px;">
           <div class="row justify-center q-pt-20">
             <q-btn size="lg" flat color="white" round dense v-if="player.state.isPlaying" icon="pause" @click="player.pause()"/>
-            <q-btn size="lg" flat color="white" round dense v-else icon="play_arrow" @click="player.play()"/>
-            <q-btn size="lg" flat color="white" round dense @click="playNext" :disable="player.queue.length === 1">
+            <q-btn size="lg" flat color="white" round dense v-else icon="play_arrow" @click="player.resume()"/>
+            <q-btn size="lg" flat color="white" round dense @click="player.playNextTrack" :disable="player.queue.length === 1">
               <q-icon size="sm" name="skip_next"/>
             </q-btn>
           </div>
@@ -36,14 +36,14 @@
         <q-item-section>
 
           <q-item-label caption lines="1">
-            <span class="text-grey-3 cursor-pointer underline-on-hover">{{player.queue[0].artist.name}}</span>
+            <span class="text-grey-3 cursor-pointer underline-on-hover">{{player.track.artist.name}}</span>
             <span class="text-white"> - </span>
-            <span class="text-grey">{{player.queue[0].name}}</span>
+            <span class="text-grey">{{player.track.name}}</span>
           </q-item-label>
 
           <q-slider dark dense
-                    :readonly="player.source.kind === 'channel'"
-                    :thumb-size="player.source.kind === 'channel' ? '0px': '20px'"
+                    :readonly="player.channel !== null && player.channel !== undefined"
+                    :thumb-size="player.channel ? '0px': '20px'"
                     :step="1" color="red"
                     :model-value="player.state.currentlyPlayingItemSecond"
                     :min="0"
@@ -51,7 +51,7 @@
                     @change="setPlayFromTime"/>
 
           <q-item-label caption lines="1">
-            <span class="text-grey">{{player.queue[0].bit_rate}} kbps  | {{player.queue[0].sample_rate}} Hz | {{player.queue[0].extension}}</span>
+            <span class="text-grey">{{player.track.bit_rate}} kbps  | {{player.track.sample_rate}} Hz | {{player.track.extension}}</span>
           </q-item-label>
 
         </q-item-section>
@@ -108,7 +108,6 @@ export default {
     const player = inject('player');
 
     const setPlayFromTime = inject('setPlayFromTime');
-    const playNext = inject('playNext');
     const setVolume = inject('setVolume');
     const setMuteOnOff = inject('setMuteOnOff');
 
@@ -118,11 +117,9 @@ export default {
 
     const showDefaultAlbumImage = ref(false);
 
-    const playingAlbumId = ref(player.queue);
-
     return {
-      setVolume, setMuteOnOff, playingAlbumId,
-      playNext, setPlayFromTime, showDefaultAlbumImage, audioLengthFormatted, playbackTime, playbackTimeReversed, player
+      setVolume, setMuteOnOff,
+      setPlayFromTime, showDefaultAlbumImage, audioLengthFormatted, playbackTime, playbackTimeReversed, player
     }
   },
   methods: {

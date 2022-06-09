@@ -2,7 +2,7 @@
   <q-card class="channelCard q-pa-md">
     <q-card-section horizontal>
 
-      <q-img loading="eager" width="250px" src="channel-3.png"/>
+      <q-img width="250px" src="channel-3.png"/>
 
       <q-item>
         <q-item-section top>
@@ -17,7 +17,8 @@
 
     <q-card-actions>
       <div style="width: 300px">
-        <q-btn round flat icon="play_circle_outline" size="30px" color="red" @click="playChannel(channel)"></q-btn>
+        <q-btn v-if="player.isNowPlayingChannel(channel.id)" round flat icon="pause" size="30px" color="red"></q-btn>
+        <q-btn v-else round flat icon="play_circle_outline" size="30px" color="red" @click="player.playChannel(channel)"></q-btn>
       </div>
 
       <q-separator vertical spaced inset/>
@@ -55,9 +56,6 @@ export default {
   methods: {
     humanizeChannelLengthInSeconds(seconds) {
       return moment.duration(seconds, 'seconds').humanize();
-    },
-    playChannel(channel) {
-      this.player.play({id: channel.id, name: channel.name, kind: 'channel'});
     }
   }
 }

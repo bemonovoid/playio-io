@@ -9,7 +9,7 @@
       title="Playback history"
       :rows="table.rows"
       :columns="table.columns"
-      row-key="name">
+      row-key="id">
 
     <template v-slot:top-left>
       <q-item>
@@ -20,9 +20,7 @@
       </q-item>
     </template>
 
-
     <template v-slot:top-right>
-      <q-btn flat round icon="refresh" @click="refreshHistory()" color="grey"></q-btn>
       <q-btn :disable="table.rows.length === 0" flat round icon="delete_sweep" color="grey" @click="confirmDeleteHistoryDialog = true"></q-btn>
 
       <q-dialog v-model="confirmDeleteHistoryDialog" persistent>
@@ -56,22 +54,23 @@
     </template>
 
     <template v-slot:body-cell-artwork="props">
-      <q-td :props="props">
-        <div>
-          <ArtworkListItemComponent :art-work-url="getAlbumArtworkUrl(props.value.album_id)" :source-id=" props.value.id"></ArtworkListItemComponent>
+      <q-td :props="props" class="artworkIcon">
+        <div id="artworkIconDiv">
+          <TrackArtworkAvatar :track-id=" props.value.id" :art-work-url="getAlbumArtworkUrl(props.value.album_id)"/>
         </div>
+        <TrackPlayButton :track-id="props.value.id"/>
       </q-td>
     </template>
 
     <template v-slot:body-cell-name="props">
-      <q-td :props="props">
+      <q-td :props="props" class="no-padding no-margin">
         <div>
           <q-item dense>
             <q-item-section side>
               <q-item-label class="text-bold text-body2">{{props.value.name}}</q-item-label>
               <q-item-label caption class="cursor-pointer underline-on-hover" @click="viewArtist(props.value.artist_id)">{{props.value.artist_name}}</q-item-label>
             </q-item-section>
-            <q-item-section v-if="!player.isEmpty() && props.value.id === player.queue[0].id" side style="min-width: 150px">
+            <q-item-section v-if="!player.isEmpty() && props.value.id === player.track.id" side style="min-width: 150px">
               <q-chip v-if="player.state.isPlaying" outline dense color="red" text-color="white" label=" Now playing " />
               <q-chip v-else outline dense color="red" text-color="white" label=" Paused " />
             </q-item-section>
@@ -95,13 +94,14 @@ import {ref, inject, onMounted} from "vue";
 import apiClient from "../../http/apiClient";
 import moment from "moment";
 
-import ArtworkListItemComponent from "../library/ArtworkListItemComponent.vue";
 import ChannelHeader from "./ChannelHeader.vue";
+import TrackArtworkAvatar from "../artwork/TrackArtworkAvatar.vue";
+import TrackPlayButton from "../artwork/TrackPlayButton.vue";
 import TrackMenuItems from "../track/TrackMenuItems.vue";
 
 export default {
   name: "ChannelView",
-  components: {ArtworkListItemComponent, ChannelHeader, TrackMenuItems},
+  components: {TrackArtworkAvatar, TrackPlayButton, ChannelHeader, TrackMenuItems},
   props: ['channelId'],
   setup(props) {
     const player = inject('player');
@@ -120,9 +120,9 @@ export default {
       columns: [
         { name: 'artwork', required: true, align: 'center', field: row => row, style: 'width: 60px', },
         { name: 'name', required: true, label: 'ARTIST / TRACK NAME', align: 'left', field: row => row },
-        { name: 'duration', required: true, label: 'DURATION', align: 'left', field: row => audioLengthFormatted(row.length_in_seconds) },
-        { name: 'date', required: true, label: 'PLAYED', align: 'left', field: row => getPlayedAgo(row.playback_timestamp) },
-        { name: 'actions', required: true, label: 'ACTIONS', align: 'left', field: row => row }
+        { name: 'duration', required: true, label: 'DURATION', align: 'center', field: row => audioLengthFormatted(row.length_in_seconds) },
+        { name: 'date', required: true, label: 'PLAYED', align: 'center', field: row => getPlayedAgo(row.playback_timestamp) },
+        { name: 'actions', required: true, label: 'ACTIONS', align: 'center', field: row => row }
       ],
       rows: []
     });
@@ -144,7 +144,7 @@ export default {
 
     onMounted(getChannel);
 
-    return {confirmDeleteHistoryDialog, channel, audioLengthFormatted, table, getAlbumArtworkUrl, getPlayedAgo, player}
+    return {confirmDeleteHistoryDialog, channel, getChannel, audioLengthFormatted, table, getAlbumArtworkUrl, getPlayedAgo, player}
   },
   methods: {
     viewArtist(artistId) {
@@ -159,11 +159,13 @@ export default {
         this.table.rows = [];
         this.confirmDeleteHistoryDialog = false;
       });
-    },
-    refreshHistory() {
-      apiClient.getPlaybackHistory(this.channelId).then(res => {
-        this.table.rows = res.data;
-      });
+    }
+  },
+  watch: {
+    'player.track': {
+      handler(val, oldVal) {
+        this.getChannel();
+      }
     }
   }
 }
@@ -172,5 +174,11 @@ export default {
 <style scoped>
 .underline-on-hover:hover {
   text-decoration: underline;
+}
+.artworkIcon #artworkIconDiv {
+  opacity: 1;
+}
+.artworkIcon:hover #artworkIconDiv {
+  opacity: 0;
 }
 </style>

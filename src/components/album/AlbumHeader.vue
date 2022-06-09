@@ -1,11 +1,8 @@
 <template>
-  <q-card class="channelCard q-pa-md q-ma-lg inset-shadow" flat>
+  <q-card class="q-pa-md q-ma-lg inset-shadow" flat>
     <q-card-section horizontal class="q-pb-sm">
-
-      <ArtworkImage :album-id="album.id" width="270px"/>
-
+      <ArtworkImage :album-id="album.id" class="albumCard"/>
       <q-list class="q-pt-lg q-mt-lg">
-
         <q-item>
           <q-item-section side>
             <q-item-label caption>Album</q-item-label>
@@ -13,14 +10,6 @@
             <q-item-label class="cursor-pointer underline-on-hover text-overline">by {{artist.name}}</q-item-label>
           </q-item-section>
         </q-item>
-
-<!--        <q-item class="q-pt-lg">-->
-<!--          <q-item-section side>-->
-<!--            <q-item-label>{{album.year}}</q-item-label>-->
-<!--            <q-item-label>{{album.genre}}</q-item-label>-->
-<!--            <q-item-label disabled class="q-pt-sm">{{albumLengthFormatted(tracks.map(t => t.track_length_in_seconds).reduce((a, b) => a + b, 0))}}</q-item-label>-->
-<!--          </q-item-section>-->
-<!--        </q-item>-->
 
         <q-item dense class="q-pt-xl">
           <q-item-section side class="q-pr-xs">
@@ -48,16 +37,16 @@
             <q-item-label class="text-subtitle2">{{albumLengthFormatted(tracks.map(t => t.track_length_in_seconds).reduce((a, b) => a + b, 0))}}</q-item-label>
           </q-item-section>
         </q-item>
-
       </q-list>
-
     </q-card-section>
+
 
     <q-separator spaced />
 
     <q-card-actions>
       <div>
-        <q-btn round flat size="20px" icon="play_arrow" color="red" @click=""></q-btn>
+        <q-btn v-if="nowPlayingIsFromThisAlbum()" round flat size="20px" icon="pause" color="red" @click="player.pause"></q-btn>
+        <q-btn v-else round flat size="20px" icon="play_arrow" color="red" @click="player.playAllTracks(tracks, 0)"></q-btn>
       </div>
     </q-card-actions>
   </q-card>
@@ -67,12 +56,14 @@
 
 import moment from "moment";
 import ArtworkImage from "../player/ArtworkImage.vue";
+import {inject} from "vue";
 
 export default {
   name: "AlbumHeader",
   components: {ArtworkImage},
   props: ["artist", "album", "tracks"],
   setup() {
+    const player = inject('player');
     const albumLengthFormatted = (lengthInSeconds) => {
       let m = moment().startOf('day').seconds(lengthInSeconds);
       let res = '';
@@ -81,11 +72,19 @@ export default {
       if (m.seconds() > 0) res += m.seconds() + 'sec'
       return res;
     }
-    return {albumLengthFormatted}
+    return {player, albumLengthFormatted}
+  },
+  methods: {
+    nowPlayingIsFromThisAlbum() {
+      return this.player.track !== null && this.tracks.map(track => track.id).indexOf(this.player.track.id) >= 0 && this.player.state.isPlaying;
+    }
   }
 }
 </script>
 
 <style scoped>
-
+  .albumCard {
+    width: 100%;
+    max-width: 250px;
+  }
 </style>

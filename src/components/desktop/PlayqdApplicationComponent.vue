@@ -15,34 +15,33 @@
 
   </div>
 
-  <LayoutComponent/>
+  <MobileLayout class="mobile-only"/>
 
 </template>
 
 <script>
 
 import moment from "moment";
-import {onMounted, computed, provide, reactive, ref, toRefs} from "vue";
+import {onMounted, computed, provide, reactive, ref} from "vue";
 import apiClient from "../../http/apiClient";
 import LayoutComponent from "./LayoutComponent.vue";
+import MobileLayout from "../mobile/MobileLayout.vue";
 
 export default {
   name: "PlayqdApplicationComponent",
   components: {
-    LayoutComponent
+    LayoutComponent,
+    MobileLayout
   },
   setup() {
-    const SOURCE_KIND_CHANNEL = 'channel';
-    const SOURCE_KIND_LIBRARY = 'library';
-    const SOURCE_KIND_ALBUM = 'album';
-
     const audioPlayerDOMElementRef = ref(null);
 
     const player = reactive({
-      source: {
-        id: null,
-        name: null,
-        kind: SOURCE_KIND_LIBRARY, // library, channel, user_playlist
+      track: null,
+      channel: null,
+      repeat: {
+        one: false,
+        all: false
       },
       state: {
         muted: false,
@@ -52,77 +51,90 @@ export default {
         currentlyPlayingItemSecond: 0,
       },
       queue: [],
-      play: (source) => {
-        play(source);
-      },
+      playAllTracks: (tracks, playFromIdx) => playFromTracks(tracks, playFromIdx),
+      playAllFromSourcePath: (sourceId, path) => playAllFromSourcePath(sourceId, path),
+      playTrack: (track) => playTrack(track),
+      playTrackFromQueue: (trackIdx) => playTrackFromQueue(trackIdx),
+      playNextTrack: () => playNextTrack(false),
+      playChannel: (channel) => {playChannel(channel)},
       pause: () => pause(),
-      isEmpty: () => !(player.queue.length > 0),
-      isNowPlayingThisItem: (sourceId) => {
-        return isNowPlayingThisItem(sourceId);
-      }
+      resume: () => resume(),
+      setRepeatOnOff: (repeatAll) => setRepeatOnOff(repeatAll),
+      setMuteOnOff: () => setMuteOnOff(),
+      isEmpty: () => player.queue.length === 0,
+      isNowPlayingTrack: (trackId) => isNowPlayingTrack(trackId),
+      isNowPlayingChannel: (channelId) => isNowPlayingChannel(channelId)
     });
 
-    const isNowPlayingThisItem = (sourceId) => {
-      return player.state.isPlaying && player.queue[0].id === sourceId;
+    const isNowPlayingTrack = (trackId) => {
+      return player.state.isPlaying && player.track.id === trackId;
     };
 
-    const playlist = reactive({
-      info: {
-        kind: SOURCE_KIND_CHANNEL, // library, channel, user_playlist
-        id: null,
-        name: null,
-      },
-      state: {
-        muted: false,
-        volume: 0.5,
-        isPlaying: false,
-        currentlyPlayingItemDuration: 0,
-        currentlyPlayingItemSecond: 0,
-      },
-      queue: []
-    });
+    const isNowPlayingChannel = (channelId) => {
+      return player.channel !== null && player.channel.id === channelId && player.state.isPlaying;
+    }
 
-    const playNextInChannel = () => {
-      setTimeout(() => {
-        apiClient.getChannelNowPlayingTrack(player.source.id).then(res => {
-          player.queue = [res.data.track];
-          player.state.currentlyPlayingItemSecond = 0;
-          loadAudioTrackFrom(player.queue[0].id, 0);
-        });
-      }, 1000);
-    };
-
-    const loadAudioChannel = (channelId) => {
-      apiClient.getChannelNowPlayingTrack(channelId).then(res => {
+    const playChannel = (channel) => {
+      apiClient.getChannelNowPlayingTrack(channel.id).then(res => {
         let nowPlayingTrack = res.data.track;
         let playStartedAt = res.data.play_start_date; // 2022-04-15T13:19:34.974526
         let playStartedAtMoment = moment(playStartedAt, moment.DATETIME_LOCAL_MS);
         let momentDiffInSeconds = moment.duration(moment().diff(playStartedAtMoment)).as('seconds');
 
+        player.track = nowPlayingTrack;
         player.queue = [nowPlayingTrack];
+        player.channel = channel;
         player.state.currentlyPlayingItemSecond = momentDiffInSeconds;
 
-        loadAudioTrackFrom(player.queue[0].id, player.state.currentlyPlayingItemSecond);
+        loadAudioTrackFrom(player.track.id, player.state.currentlyPlayingItemSecond);
       });
     };
 
-    const play = (source) => {
-      if (source) {
-        player.source.id = source.id;
-        player.source.name = source.name;
-        player.source.kind = source.kind;
-        if (player.source.kind === SOURCE_KIND_LIBRARY) {
-          player.queue = []
-          loadAudioTrackFrom(source.id, 0);
-        } else if (player.source.kind === SOURCE_KIND_ALBUM) {
-          player.queue = source.id;
-          loadAudioTrackFrom(player.queue[0].id, 0);
-        } else if (player.source.kind === SOURCE_KIND_CHANNEL) {
-          loadAudioChannel(player.source.id);
-        }
+    const playFromTracks = (tracks, playFromIdx, playFromExistingQueue) => {
+      let trackToPlay = null;
+      if (playFromExistingQueue) {
+        trackToPlay = player.queue[playFromIdx];
       } else {
-        audioPlayerDOMElementRef.value.play(); // When play a song that was set on pause
+        trackToPlay = tracks[playFromIdx];
+        player.queue = tracks;
       }
+      player.track = trackToPlay;
+      player.channel = null;
+      loadAudioTrackFrom(trackToPlay.id, 0);
+    };
+
+    const playTrack = (track) => {
+      playFromTracks([track], 0);
+    };
+
+    const playTrackFromQueue = (trackIdx) => {
+      playFromTracks(null, trackIdx, true);
+    };
+
+    const playAllFromSourcePath = (sourceId, path) => {
+      apiClient.getAudioTracksFromPathInSource(sourceId, path).then(res => {
+        playFromTracks(res.data, 0);
+      });
+    };
+
+    const playNextTrack = (autoNext) => {
+      let currentIdx = player.queue.findIndex(track => track.id === player.track.id);
+      if (currentIdx + 1 < player.queue.length) {
+        let nextIdx = (player.repeat.one && autoNext) ? currentIdx : currentIdx + 1;
+        playTrackFromQueue(nextIdx);
+      } else if (player.repeat.one || player.repeat.all) {
+        playTrackFromQueue(0);
+      }
+    };
+
+    const playNextInChannel = () => {
+      setTimeout(() => {
+        apiClient.getChannelNowPlayingTrack(player.channel.id).then(res => {
+          player.queue = [res.data.track];
+          player.state.currentlyPlayingItemSecond = 0;
+          loadAudioTrackFrom(player.queue[0].id, 0);
+        });
+      }, 1000);
     };
 
     const loadAudioTrackFrom = (trackId, fromSeconds) => {
@@ -131,15 +143,8 @@ export default {
       audioPlayerDOMElementRef.value.load();
     };
 
-    const playNewPlaylist = (songs) => {
-      player.queue = songs;
-      play(player.queue[0].id);
-    }
-
-    const playNext = () => {
-      if (player.queue.length > 1) {
-        playNewPlaylist(player.queue.slice(1));
-      }
+    const resume = () => {
+      audioPlayerDOMElementRef.value.play();
     };
 
     const pause = () => {
@@ -155,6 +160,16 @@ export default {
         setMuteOnOff();
       }
       audioPlayerDOMElementRef.value.volume = player.state.volume;
+    };
+
+    const setRepeatOnOff = (repeatAll) => {
+      if (repeatAll) {
+        player.repeat.one = false;
+        player.repeat.all = !player.repeat.all;
+      } else {
+        player.repeat.all = false;
+        player.repeat.one = !player.repeat.one;
+      }
     };
 
     const setPlayFromTime = (playFromTime) => {
@@ -184,14 +199,8 @@ export default {
       audioPlayerDOMElementRef.value.volume = player.state.volume;
     });
 
-    provide('play', play);
-    provide('pause', pause);
-    provide('playNext', playNext)
-    provide('playNewPlaylist', playNewPlaylist);
-
     provide('player', player);
 
-    provide('setMuteOnOff', setMuteOnOff);
     provide('setVolume', setVolume);
     provide('setPlayFromTime', setPlayFromTime);
 
@@ -200,9 +209,7 @@ export default {
     provide('currentlyPlayingSongTime', currentlyPlayingSongTime);
     provide('currentlyPlayingSongTimeReversed', currentlyPlayingSongTimeReversed);
 
-    return {
-      SOURCE_KIND_CHANNEL, audioPlayerDOMElementRef,
-      playNext, playNextInChannel, player
+    return { audioPlayerDOMElementRef, playNextTrack, playNextInChannel, player
     }
   },
 
@@ -220,10 +227,10 @@ export default {
       this.player.state.isPlaying = false;
     },
     onAudioEnded() {
-      if (this.player.source.kind === this.SOURCE_KIND_CHANNEL) {
+      if (this.player.channel !== null) {
         this.playNextInChannel();
       } else {
-        this.playNext();
+        this.playNextTrack(true);
       }
     },
     onAudioTimeUpdate() {
@@ -234,6 +241,7 @@ export default {
     },
     onAudioError() {
       console.error("Failed to play audio. Something went wrong, probably io error");
+      this.onAudioEnded();
     }
   }
 

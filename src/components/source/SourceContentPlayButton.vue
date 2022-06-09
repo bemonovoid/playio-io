@@ -1,7 +1,6 @@
 <template>
   <div class="absolute-center playButtonIconContainer transparent">
-    <q-btn v-if="player.isNowPlayingThisItem(sourceId)" flat round icon="pause" @click="player.pause()"/>
-    <q-btn v-else flat round icon="play_arrow" @click="player.play({id: sourceId, kind: sourceKind})"/>
+    <q-btn flat round icon="play_arrow" color="red" @click="player.playAllFromSourcePath(sourceId, path)"/>
   </div>
 </template>
 
@@ -10,8 +9,8 @@
 import {inject} from "vue";
 
 export default {
-  name: "TrackListItemPlayButton",
-  props: ["sourceId", "sourceKind"],
+  name: "SourceContentPlayButton",
+  props: ['sourceId', 'path'],
   setup() {
     const player = inject('player');
     return {player}

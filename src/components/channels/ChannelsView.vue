@@ -3,6 +3,9 @@
   <div class="q-pa-md">
     <q-item class="q-pl-none">
       <q-item-section side>
+        <q-icon size="lg" name="podcasts"/>
+      </q-item-section>
+      <q-item-section side>
         <q-item-label class="text-h3">Channels</q-item-label>
       </q-item-section>
     </q-item>
@@ -35,7 +38,7 @@
   <div class="q-pa-md row items-start q-gutter-lg inset-shadow">
 
     <q-card v-for="channel in channels" :key="channel.id" class="channelCard" bordered>
-      <q-img loading="eager" src="channel-3.png" class="q-hoverable cursor-pointer" @click="viewChannel(channel.id)">
+      <q-img src="channel-3.png" class="q-hoverable cursor-pointer" @click="viewChannel(channel.id)">
         <div class="absolute-bottom">
           <q-item-section>
             <q-item-label class="text-subtitle2 text-weight-bold">{{channel.name}}</q-item-label>
@@ -44,7 +47,7 @@
       </q-img>
 
       <q-card-actions align="left" class="q-py-none">
-        <q-btn flat round color="grey" icon="play_arrow" @click="playChannel(channel)"/>
+        <q-btn flat round color="grey" icon="play_arrow" @click="player.playChannel(channel)"/>
       </q-card-actions>
     </q-card>
 
@@ -95,9 +98,6 @@ export default {
   methods: {
     viewChannel(channelId) {
       this.$router.push({name: "channel", params: {channelId: channelId}});
-    },
-    playChannel(channel) {
-      this.player.play({id: channel.id, name: channel.name, kind: 'channel'});
     }
   }
 

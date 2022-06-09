@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const API_CLIENT = axios.create({
-    baseURL: "http://localhost:9586/playqd",
-    // baseURL: import.meta.env.VITE_VUE_APP_BASE_URL,
+    // baseURL: "http://localhost:9586/playqd",
+    baseURL: import.meta.env.VITE_VUE_APP_BASE_URL,
     headers: {
         "Content-type": "application/json"
     }
@@ -36,7 +36,7 @@ export default {
             }
             queryStr += key + "=" + encodeURIComponent(withPagination[key]);
         }
-        return this.executeGet('/api/library/artists' + queryStr)
+        return this.executeGet('/api/artists' + queryStr)
     },
     getAlbums(withPagination) {
         let queryStr = "?";
@@ -87,8 +87,12 @@ export default {
     getSourceWithContent(sourceId, pathInSource) {
         let url = '/api/sources/' + sourceId + '/content';
         if (pathInSource) {
-            url += '?path=' + pathInSource;
+            url += '?path=' + encodeURIComponent(pathInSource);
         }
+        return this.executeGet(url);
+    },
+    getAudioTracksFromPathInSource(sourceId, pathInSource) {
+        let url = '/api/sources/' + sourceId + '/content/tracks/?path=' + encodeURIComponent(pathInSource);
         return this.executeGet(url);
     },
     editSource(source) {

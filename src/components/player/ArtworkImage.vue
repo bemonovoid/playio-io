@@ -1,6 +1,7 @@
 <template>
-  <q-img loading="eager" v-if="useDefaultArtwork" src="default-album-cover.png"></q-img>
-  <q-img loading="eager" v-else :src="getArtworkUrl(albumId)" @error="useDefaultArtwork = true"></q-img>
+  <q-icon v-if="useDefaultArtwork" name="album" size="xl" class="no-padding"></q-icon>
+<!--  <q-img v-if="useDefaultArtwork" src="default-album-cover.png"></q-img>-->
+  <q-img loading="eager" no-spinner no-transition v-else :src="getArtworkUrl(albumId)" @error="useDefaultArtwork = true"></q-img>
 </template>
 
 <script>
